@@ -17,11 +17,27 @@ const ohlcvs_ = [
 const ex = new ccxt.binance();
 
 const symbol = "ASTRBUSD";
-const period = "15m";
+const period = "1m";
+const back = 1440;
+
+// 01m - 1440  
+// 03m - 480  
+// 05m - 288  
+// 15m - 96  
+
+
+async function ohlcvs_gen(params) {
+  ohlcvs_json = await ex.fetchOHLCV(symbol, period, undefined, back);
+  fs.writeFile('ohlcvs.json', JSON.stringify(ohlcvs_json), 'utf8', (err)=>{
+    if (err) throw err;
+    console.log('write to ohlcvs.json');
+  });
+}
+
+// ohlcvs_gen()
 
 1 &&
   (async () => {
-    // ohlcvs = await ex.fetchOHLCV(symbol, period, undefined, 500);
 
     var config = {
       _percDiff: 1,
@@ -54,6 +70,7 @@ const period = "15m";
       // if (key > 1) {
       var isBull = kc[4] > kcp[4];
       var pricePercDiff = percDiff(kc[4], kcp[4]).toFixed(1);
+      var buyersSuppor = getBySelSupport(kc[1] ,kc[2], kc[3], kc[4])
 
       left = isBull;
 
@@ -88,15 +105,15 @@ const period = "15m";
           t_buy = +t;
         }
 
-        log(
-          "sell",
-          t_sell.toFixed(5),
-          "t_buy",
-          t_buy.toFixed(5),
-          "d--f",
-          "~cyn",
-          (Math.abs(t_sell) - Math.abs(t_buy)).toFixed(5)
-        );
+        // log(
+        //   "sell",
+        //   t_sell.toFixed(5),
+        //   "t_buy",
+        //   t_buy.toFixed(5),
+        //   "d--f",
+        //   "~cyn",
+        //   (Math.abs(t_sell) - Math.abs(t_buy))
+        // );
 
         buySell = [[], []];
         // /////////////////////////////////////////// end section price diff
@@ -139,10 +156,11 @@ const period = "15m";
         kc[4],
         isBull ? "~b_grn" : "~b_rd",
         pricePercDiff + "%",
-        "~reset"
+        "~reset",
         // "~wt",
         // "|",
-        // isBull ? totalPricePercDiffBuy : totalPricePercDiffSell
+        // isBull ? totalPricePercDiffBuy : totalPricePercDiffSell,
+        buyersSuppor ? "~grn" : "~rd", "^"
       );
 
       // }
@@ -157,3 +175,19 @@ function percDiff(num1, num2) {
   // (Difference/Average) × 100%
   return Math.abs((diff / avrg) * 100);
 }
+
+function getBySelSupport(open ,close, high, low) {
+  byrsPush = 0; 
+  selrsPush = 0; 
+  if(open < close)selrsPush = (high - close)
+  else selrsPush = high - open; 
+
+  if(close < open){ byrsPush = (close - low)}
+  else byrsPush = open - low; 
+
+  // console.log("sell", selrsPush, ' | buy',  byrsPush);
+  return  byrsPush > selrsPush 
+}
+
+
+// getBySelSupport(5, 7, 9, 4)
