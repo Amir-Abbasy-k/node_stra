@@ -162,7 +162,7 @@ async function ohlcvs_gen(params) {
         // isBull ? totalPricePercDiffBuy : totalPricePercDiffSell,
         buyersSuppor ? "~grn" : "~rd", "^"
       );
-
+ 
       // }
     }
   })();
